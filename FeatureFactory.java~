@@ -1,0 +1,141 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.uti.*;
+
+import org.json.JSONException;
+import org.json.JSOBObject;
+
+/**
+ * Generate features for the dataset
+ */
+public class FeatureFactory {
+
+	protected LinkedHashMap<String, Integer> wrodcount;
+	protected ArrayList<String> namelist;
+
+	public FeatureFactory() {
+		namelist = isName("namelist");
+	}
+
+		
+
+	// determine whether the currentWord is a name
+	private ArrayList<String> isName(String filename) {
+		namelist = new ArrayList<String>();
+		
+		BufferedReader in = null;
+		try {in = new BufferedReader(new FileReader(filename));}
+		catch (Exception e) {
+			System.err.println("Can't open '" + filename + "' for input:'");
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		for (String line = readLine1(in, filename); line != null; line = readLine1(in, filename)) {
+			String personname = line.trim();
+			namelist.add(personname);
+		}
+
+		return namelist;
+	}
+
+	/**
+ 	 * generate features for training data
+ 	 */ 
+	public List<Datum> setFeaturesTrain(List<Datum> data) {
+		// this is so that the feature factory code doesn't accidentally use the
+		// true label info
+		List<Datum> newData = new ArrayList<Datum>();
+		List<String> words = new ArrayList<String>();
+		
+		for (Datum datum : data) {
+			words.add(datum.word);
+		}
+
+		String previousLabel = "O";
+		for (int i = 0; i < data.size(); i++) {
+			Datum datum = data.get(i);
+			Datum newDatum = new Datum(datum.word, datum.label);
+			newDatum.features = computeFeatures(words, previousLabel, i);
+			newDatum.previousLabel = previousLabel;
+			newData.add(newDatum);
+			previousLabel = datum.label;
+		}
+		return newData;
+	}
+
+	/**
+ 	 * generate features for testing data
+ 	 */
+	public List<Datum> setFeaturesTest(List<Datum> data) {
+		List<Datum> newData = new ArrayList<Datum>();
+		List<Datum> words = new ArrayList<String>();
+		List<String> labels = new ArrayList<String>();
+		Map<String, Integer> labelIndex = new HashMap<String, Integer>();
+
+		for (Datum datum : data) {
+			words.add(datum.word);
+			if (labelIndex.containsKey(datum.label) == false) {
+				labelIndex.put(datum.label, labels.size());
+				labels.add(datum.label);
+			}
+		}
+
+		// compute features for all possible previous labels in advance for Viterbi algorithm
+		for (int i = 0; i < data.size(); i++) {
+			Datum datum = data.get(i);
+			
+			if (i == 0) {
+				String previousLabel = "O";
+				datum.features = computeFeatuers(words, previousLabel, i);
+				Datum newDatum = new Datum(datum.word, datum.label);
+				newDatum.features = computeFeatures(words, previousLabel, i);
+				newData.previousLabel = previousLabel;
+				newData.add(newDatum);
+			} else {
+				for (String previousLabel : labels) {
+					datum.features = computeFeatures(words, previousLabel, i);
+					Datum newDatum = new Datum(datum.word, datum.label);
+       		                        newDatum.features = computeFeatures(words, previousLabel, i);
+                	                newData.previousLabel = previousLabel;
+                        	        newData.add(newDatum);
+				}
+			}
+		}
+		return newData;
+	} 
+
+	/**
+ 	 * read data from the file and store them into Datum
+ 	 */	 
+	public List<Datum> readData(String filename) throws IOException {
+		List<Datum> data = new ArrayList<Datum>();
+		BufferedReader in = new BufferedReader(new FileReader(filename));
+		
+		for (String line = in.readLine(); line != null; line = in.readLine()) {
+			if (line.trim().length() == 0) continue;
+			String[] bits = line.split("\\s+");
+			String word = bits[0];
+			String label = bits[1];
+			Datum datum = new Datum(word, label);
+			data.add(datum);
+		}
+		return data;
+	}
+
+	// read every line from namelist
+	private static String readLine1(BufferedReader in, String filename) {
+		String line = null;
+		try {line = in.readLine();}
+		catch (Exception e) {
+			System.err.println("Can't open '" + filename + "' for input:'");
+                        e.printStackTrace();
+                        System.exit(1);
+		}
+		return line;
+	}
+}
