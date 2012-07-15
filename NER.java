@@ -12,20 +12,17 @@ import java.io.*;
 public class NER {
 
 	public static void main(String[] args) throws IOException {
-		if (args.length < 2) {
-			System.out.println("USAGE: java -cp classes NER ../data/train ../data/dev");
+		if (args.length < 3) {
+			System.out.println("USAGE: java -cp classes NER ../data/train ../data/dev 1|2 ");
+			System.out.println("1: structured perceptron;     2: structured perceptron with average ");
 			return;
-		}
-
-		String print = "";
-		if (args.length > 2 && args[2].equals("-print")) {
-			print = "-print";
 		}
 
 		FeatureFactory ff = new FeatureFactory();
 		// read the train and test data
 		List<Datum> trainData = ff.readData(args[0]);
 		List<Datum> testData = ff.readData(args[1]);
+		String choice = args[2]; 	
 
 		// add the features
 		List<Datum> trainDataWithFeatures = ff.setFeaturesTrain(trainData);
@@ -36,7 +33,12 @@ public class NER {
 		//ff.writeData(testDataWithFeatures, "testWithFeatuers");
 
 		double[][] weight;
-		weight = StructuredPerceptron.learnPerceptron(trainDataWithFeatures, testDataWithFeatures);
+		
+		if (choice.equals("1")) {
+			weight = StructuredPerceptron.learnPerceptron(trainDataWithFeatures, testDataWithFeatures);
+		} else {
+			weight = AverageStructuredPerceptron.learnPerceptron(trainDataWithFeatures, testDataWithFeatures);
+		}
                 if (weight == null) return;
 
 		// run Structured Perceptron
