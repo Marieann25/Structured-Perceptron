@@ -35,7 +35,7 @@ public class Viterbi {
 		for (position = 1; position< data.size(); position++) {
 			// equivalent position in dataWithMultiplePrevLabels
 			int i = position * numLabels() - 1; 
-			
+
 			// for each previous label 
 			for (int j = 0; j < numLabels(); j++) {
 				Datum datum = dataWithMultiplePrevLabels.get(i + j);
