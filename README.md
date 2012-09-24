@@ -5,7 +5,7 @@ Jun Xie (xie@eecs.oregonstate.edu)
 
 Percpetron is a very efficient linear classification algorithm. The algorithm can be applied to non-structure data and structured data. At first, for non-structured data, we can use the traditional percpetron algorithm to train the model. There is one perceptron implementation with batch gradient descent method. I use the two gaussian dataset to test the algorithm. In order to run the algorithm, you just need to execute the following method and the final weight will be outputed in the screen.
         >> java Perceptron
-In addition, for structured data, we need to extend the Perceptron algorithm. There is one variant of Perceptron called structured Perceptron. In order to run the algorithm, you just need to execute the following method and the final weight will be outputed in the screen. We use the NER dataset to train the model. If you want to train the model, you can compile the program and execute according to the following commands:
+In addition, for structured data, we need to extend the Perceptron algorithm. There is one variant of Perceptron called structured Perceptron. In order to run the algorithm, you just need to execute the following method and the final weight will be outputed in the screen. We use the NER(Named Entity Recoginition) dataset to train the model. If you want to train the model, you can compile the program and execute according to the following commands:
         >> javac *.java org/json/*.java -classpath "cloning-1.8.1-sources.jar:objenesis-1.2.jar:cloning-1.8.1.jar" -d classes -target 1.6
         // structured perceptron
         >> java -cp classes:.:cloning-1.8.1-sources.jar:objenesis-1.2.jar:cloning-1.8.1.jar NER ../data/train ../data/dev 1
